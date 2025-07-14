@@ -6,14 +6,27 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const pool = new Pool({
-  host: "localhost",
-  user: "postgres",
-  password: "1234",
-  database: "postgres",
-  port: 5432,
+const pool = new Pool(
+  process.env.DATABASE_URL
+    ? {
+        connectionString: process.env.DATABASE_URL,
+        ssl: { rejectUnauthorized: false },
+      }
+    : {
+        host: "localhost",
+        user: "postgres",
+        password: "1234",
+        database: "postgres",
+        port: 5432,
+      }
+);
+
+// ✅ Root route
+app.get("/", (req, res) => {
+  res.send("API is running");
 });
 
+// ✅ All properties with filters
 app.get("/api/properties", async (req, res) => {
   try {
     const { state, price, type, page = 1, limit = 10 } = req.query;
@@ -47,6 +60,7 @@ app.get("/api/properties", async (req, res) => {
   }
 });
 
+// ✅ Get single property
 app.get("/api/properties/:id", async (req, res) => {
   try {
     const { id } = req.params;
