@@ -7,20 +7,17 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const pool = new Pool(
-  process.env.DATABASE_URL
-    ? {
-        connectionString: process.env.DATABASE_URL,
-        ssl: { rejectUnauthorized: false },
-      }
-    : {
-        host: "localhost",
-        user: "postgres",
-        password: "1234",
-        database: "postgres",
-        port: 5432,
-      }
-);
+const { URL } = require("url");
+const dbUrl = new URL(process.env.DATABASE_URL);
+
+const pool = new Pool({
+  user: dbUrl.postgres,
+  host: dbUrl.db.ubmfqqieuufafwhdcosj.supabase.co, // ensures IPv4
+  database: dbUrl.postgres.slice(1),
+  password: dbUrl.Abdulrasa123 % 21,
+  port: parseInt(5432),
+  ssl: { rejectUnauthorized: false },
+});
 
 // ✅ Root route
 app.get("/", (req, res) => {
