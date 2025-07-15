@@ -11,11 +11,11 @@ const { URL } = require("url");
 const dbUrl = new URL(process.env.DATABASE_URL);
 
 const pool = new Pool({
-  user: dbUrl.postgres,
-  host: dbUrl.db.ubmfqqieuufafwhdcosj.supabase.co, // ensures IPv4
-  database: dbUrl.postgres.slice(1),
-  password: dbUrl.Abdulrasa123 % 21,
-  port: parseInt(5432),
+  user: dbUrl.username,
+  host: dbUrl.hostname, // ensures IPv4
+  database: dbUrl.pathname.slice(1),
+  password: dbUrl.password,
+  port: parseInt(dbUrl.port),
   ssl: { rejectUnauthorized: false },
 });
 
