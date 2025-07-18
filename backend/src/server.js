@@ -1,23 +1,27 @@
-require("dotenv").config();
 const express = require("express");
+require("dotenv").config();
 const cors = require("cors");
+
 const { Pool } = require("pg");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const { URL } = require("url");
-const dbUrl = new URL(process.env.DATABASE_URL);
-
-const pool = new Pool({
-  user: dbUrl.username,
-  host: dbUrl.hostname, // ensures IPv4
-  database: dbUrl.pathname.slice(1),
-  password: dbUrl.password,
-  port: parseInt(dbUrl.port),
-  ssl: { rejectUnauthorized: false },
-});
+const pool = new Pool(
+  process.env.DATABASE_URL
+    ? {
+        connectionString: process.env.DATABASE_URL,
+        ssl: { rejectUnauthorized: false },
+      }
+    : {
+        host: "localhost",
+        user: "postgres",
+        password: "1234",
+        database: "postgres",
+        port: 5432,
+      }
+);
 
 // ✅ Root route
 app.get("/", (req, res) => {
