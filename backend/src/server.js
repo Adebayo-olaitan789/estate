@@ -1,18 +1,19 @@
 const express = require("express");
 require("dotenv").config();
 const cors = require("cors");
-
 const { Pool } = require("pg");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const pool = new Pool(
-  process.env.DATABASE_URL
+// Database configuration
+const isProduction = process.env.NODE_ENV === "production";
+const dbConfig =
+  isProduction && process.env.DATABASE_URL
     ? {
         connectionString: process.env.DATABASE_URL,
-        ssl: { rejectUnauthorized: false },
+        ssl: { rejectUnauthorized: false }, // Required for Render's SSL
       }
     : {
         host: "localhost",
@@ -20,8 +21,19 @@ const pool = new Pool(
         password: "1234",
         database: "postgres",
         port: 5432,
-      }
-);
+      };
+
+const pool = new Pool(dbConfig);
+
+// Test database connection
+pool.connect((err, client, release) => {
+  if (err) {
+    console.error("Database connection error:", err.stack);
+  } else {
+    console.log("Connected to database successfully");
+    release(); // Release the client back to the pool
+  }
+});
 
 // ✅ Root route
 app.get("/", (req, res) => {
@@ -37,8 +49,8 @@ app.get("/api/properties", async (req, res) => {
     const params = [];
 
     if (state) {
-      params.push(state);
-      query += ` AND location = $${params.length}`;
+      params.push(`%${state}%`); // Use ILIKE for partial matching
+      query += ` AND location ILIKE $${params.length}`;
     }
     if (price) {
       params.push(parseFloat(price));

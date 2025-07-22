@@ -7,11 +7,15 @@ function Home() {
   const [properties, setProperties] = useState([]);
   const [filters, setFilters] = useState({ state: "", price: "", type: "" });
   const [page, setPage] = useState(1);
-  const limit = 10;
+  const limit = 50; // Increase limit to show more properties initially
 
   useEffect(() => {
     const queryParams = new URLSearchParams({ ...filters, page, limit });
-    fetch(`http://localhost:3000/api/properties?${queryParams}`)
+    const backendUrl =
+      process.env.NODE_ENV === "production"
+        ? "https://estate-7rjd.onrender.com/api/properties" // Replace with your actual backend URL
+        : "http://localhost:3000/api/properties";
+    fetch(`${backendUrl}?${queryParams}`)
       .then((res) => res.json())
       .then((data) => setProperties(data))
       .catch((err) => console.error("Error fetching properties:", err));
